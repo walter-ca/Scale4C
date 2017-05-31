@@ -1,10 +1,10 @@
 Package: Scale4C
 Type: Package
 Title: Scale4C: an R/Bioconductor package for scale-space transformation of 4C-seq data
-Version: 0.99.1
+Version: 0.99.2
 Date: 2017-05-31
 Author: Carolin Walter
-Maintainer: Carolin Walter <carolin.walter@ukmuenster.de>
+Maintainer: Carolin Walter <carolin.walter@uni-muenster.de>
 Imports: methods, grDevices, graphics, utils 
 Depends: R (>= 3.4), smoothie
 Suggests:

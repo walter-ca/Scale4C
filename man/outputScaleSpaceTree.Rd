@@ -16,7 +16,7 @@ question exists
 
 \arguments{
 \item{data}{a \code{Scale4C} object with singularity data}
-\item{outputPeaks}{If TRUE, output bed-like peak list only, if FALSE, 
+\item{outputPeaks}{If TRUE, output GRanges peak list only, if FALSE, 
     also output valley data in a larger table}
 \item{useLog}{If TRUE, use a log2 transformation on the square sigma values 
 (fewer changes and fewer singularities for high sigma, in contrast to low 
@@ -43,7 +43,7 @@ If \code{outputPeaks} is true, a reduced list of peaks is printed, while
 omitting valleys or the central-left-right structural information.
 }
 
-\value{A data frame that includes all features as identified through singular 
+\value{A GRanges object that includes all features as identified through singular 
 points, plus 'neighbour features' at each side (each 'peak' is surrounded by 
 two 'valleys' and vice versa for Gauss kernel smoothing), with positions and 
 range of sigma for which the feature in question remains stable}

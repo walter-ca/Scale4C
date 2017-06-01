@@ -13,11 +13,11 @@
 \alias{pointsOfInterest}
 \alias{pointsOfInterest,Scale4C-method}
 \alias{pointsOfInterest<-}
-\alias{pointsOfInterest<-,Scale4C,data.frame-method}
+\alias{pointsOfInterest<-,Scale4C,GRanges-method}
 \alias{rawData}
 \alias{rawData,Scale4C-method}
 \alias{rawData<-}
-\alias{rawData<-,Scale4C,data.frame-method}
+\alias{rawData<-,Scale4C,GRanges-method}
 \alias{scaleSpace}
 \alias{scaleSpace,Scale4C-method}
 \alias{scaleSpace<-}
@@ -29,7 +29,7 @@
 \alias{singularities}
 \alias{singularities,Scale4C-method}
 \alias{singularities<-}
-\alias{singularities<-,Scale4C,data.frame-method}
+\alias{singularities<-,Scale4C,GRanges-method}
 
 \title{Class \code{"Scale4C"}}
 \description{
@@ -49,10 +49,10 @@ Objects can be created by calls of the form \code{new("Scale4C", ...)}.
 viewpoint's location}
 \item{\code{viewpointChromosome}:}{Object of class \code{"character"} 
 representing the viewpoint's chromosome}
-\item{\code{pointsOfInterest}:}{Object of class \code{"data.frame"} 
+\item{\code{pointsOfInterest}:}{Object of class \code{"GRanges"} 
 representing any points of interest to be marked in the visualizations 
 (usually near-cis based, i.e. close to the viewpoint)}
-\item{\code{rawData}:}{Object of class \code{"data.frame"} representing 
+\item{\code{rawData}:}{Object of class \code{"GRanges"} representing 
 the 4C-seq reads (or signal strength) of the experiment at given genomic 
 positions}
 \item{\code{scaleSpace}:}{Object of class \code{"matrix"} representing 
@@ -60,7 +60,7 @@ the gradually smoothed 4C-seq signal}
 \item{\code{fingerprint}:}{Object of class \code{"matrix"} representing 
 the scale-space fingerprint map, i.e. a collection of inflection points 
 in the smoothed signal}
-\item{\code{singularities}:}{Object of class \code{"data.frame"} 
+\item{\code{singularities}:}{Object of class \code{"GRanges"} 
 representing singularities in the fingerprint map for the given 4C-seq signal}
 }
 }
@@ -76,11 +76,11 @@ Setter-method for the viewpointChromosome slot.}
 \item{viewpointChromosome}{\code{signature(object = "Scale4C")}: 
 Getter-method for the viewpointChromosome slot.}
 \item{pointsOfInterest<-}{\code{signature(object = "Scale4C", 
-    value = "data.frame")}: 
+    value = "GRanges")}: 
 Setter-method for the pointsOfInterest slot.}
 \item{pointsOfInterest}{\code{signature(object = "Scale4C")}: 
 Getter-method for the pointsOfInterest slot.}
-\item{rawData<-}{\code{signature(object = "Scale4C", value = "data.frame")}: 
+\item{rawData<-}{\code{signature(object = "Scale4C", value = "GRanges")}: 
 Setter-method for the rawData slot.}
 \item{rawData}{\code{signature(object = "Scale4C")}: 
 Getter-method for the rawData slot.}
@@ -93,7 +93,7 @@ Setter-method for the fingerprint slot.}
 \item{fingerprint}{\code{signature(object = "Scale4C")}: 
 Getter-method for the fingerprint slot.}
 \item{singularities<-}{\code{signature(object = "Scale4C", 
-    value = "data.frame")}: 
+    value = "GRanges")}: 
 Setter-method for the singularities slot.}
 \item{nearCisFragments}{\code{signature(object = "Scale4C")}: 
 Getter-method for the singularities slot.}

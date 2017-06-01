@@ -4,8 +4,8 @@
         maxSQSigma = nrow(fingerprint(data))
     }
     coordPos = rawData(data)
-    coordPos$index = 1:nrow(coordPos)
-    pos = rawData(data)$position
+    coordPos$index = 1:length(coordPos)
+    pos = rawData(data)$meanPosition
     sl = singularities(data)
 
     if (useIndex) {
@@ -25,26 +25,26 @@
         lines(indexMinus, rep(k, length(indexMinus)), type = "p", col = "grey60", cex = 0.3)
     }
 
-    for (i in 1:nrow(sl)) {
-        lines(c(sl$left[i], sl$position1[i], sl$position2[i], sl$right[i]), c(1, as.numeric(sl$sqsigma[i]) + 1, as.numeric(sl$sqsigma[i]) + 1, 1), type = "l", col = "grey30", lwd = 1.5)
-        if (abs(sl$position1[i] - sl$position2[i]) < 5) {
-            lines(round((sl$position1[i] + sl$position2[i]) / 2), as.numeric(sl$sqsigma[i]) + 2, type = "p", col = "black", bg = "grey70", pch = 25, cex = 1.5)
+    for (i in 1:length(sl)) {
+        lines(c(sl$left[i], start(ranges(sl))[i], end(ranges(sl))[i], sl$right[i]), c(1, sl$sqsigma[i] + 1, sl$sqsigma[i] + 1, 1), type = "l", col = "grey30", lwd = 1.5)
+        if (abs(start(ranges(sl))[i] - end(ranges(sl))[i]) < 5) {
+            lines(round((start(ranges(sl))[i] + end(ranges(sl))[i]) / 2), as.numeric(sl$sqsigma[i]) + 2, type = "p", col = "black", bg = "grey70", pch = 25, cex = 1.5)
         }
     }
 
     poi = pointsOfInterest(data)
-    if (nrow(poi) != 0) {
+    if (length(poi) != 0) {
         if (useIndex) {
-            for (i in 1:nrow(poi)) {
-                points(poi$index[i], round(maxSQSigma * 0.95), cex = 2.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
+            for (i in 1:length(poi)) {
+                points(poi$index[i], round(maxSQSigma * 0.95), cex = 2.0, pch = 25, col = poi$colour[i], bg = poi$colour[i])
                 text(poi$index[i], round(maxSQSigma * 0.99), poi$name[i], cex = 2.0)
-                lines(rep(poi$index[i],2), c(0,round(maxSQSigma * 0.95)), type = "l", col = as.vector(poi$colour[i]), lwd = 2, lty = "dashed")
+                lines(rep(poi$index[i],2), c(0,round(maxSQSigma * 0.95)), type = "l", col = poi$colour[i], lwd = 2, lty = "dashed")
             }
         } else {
-            for (i in 1:nrow(poi)) {
-                points(poi$position[i], round(maxSQSigma * 0.95), cex = 2.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
-                text(poi$position[i], round(maxSQSigma * 0.99), poi$name[i], cex = 2.0)
-                lines(rep(poi$position[i],2), c(0,round(maxSQSigma * 0.95)), type = "l", col = as.vector(poi$colour[i]), lwd = 2, lty = "dashed")
+            for (i in 1:length(poi)) {
+                points(start(ranges(poi))[i], round(maxSQSigma * 0.95), cex = 2.0, pch = 25, col = poi$colour[i], bg = poi$colour[i])
+                text(start(ranges(poi))[i], round(maxSQSigma * 0.99), poi$name[i], cex = 2.0)
+                lines(rep(start(ranges(poi))[i],2), c(0,round(maxSQSigma * 0.95)), type = "l", col = poi$colour[i], lwd = 2, lty = "dashed")
             }
         }
     }

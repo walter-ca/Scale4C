@@ -1,9 +1,9 @@
 # constructor for class "Scale4C"
 
-setMethod("Scale4C", signature(viewpoint="numeric", viewpointChromosome="character", rawData="data.frame"),
+setMethod("Scale4C", signature(viewpoint="numeric", viewpointChromosome="character", rawData="GRanges"),
     function(viewpoint, viewpointChromosome, rawData) {
 
-        if (nrow(rawData) < 10) {
+        if (length(rawData) < 10) {
             message("The input raw data seems to be very short, please check if the data is correct")
         }
 
@@ -55,7 +55,7 @@ setMethod("pointsOfInterest", signature(object="Scale4C"),
 )
 
 setReplaceMethod("pointsOfInterest",
-    signature=signature(object="Scale4C", value="data.frame"),
+    signature=signature(object="Scale4C", value="GRanges"),
     function(object, value) {
         object@pointsOfInterest = value
         return(object)
@@ -69,7 +69,7 @@ setMethod("rawData", signature(object="Scale4C"),
 )
 
 setReplaceMethod("rawData",
-    signature=signature(object="Scale4C", value="data.frame"),
+    signature=signature(object="Scale4C", value="GRanges"),
     function(object, value) {
         object@rawData = value
         return(object)
@@ -111,46 +111,41 @@ setMethod("singularities", signature(object="Scale4C"),
 )
 
 setReplaceMethod("singularities",
-    signature=signature(object="Scale4C", value="data.frame"),
+    signature=signature(object="Scale4C", value="GRanges"),
     function(object, value) {
         fullSings = value
-        fullSings$position1 = as.numeric(fullSings$position1)
-        fullSings$position2 = as.numeric(fullSings$position2)
-        fullSings$sqsigma = as.numeric(fullSings$sqsigma)
-        fullSings$left = as.numeric(fullSings$left)
-        fullSings$right = as.numeric(fullSings$right)
-        fullSings = fullSings[order(fullSings$sqsigma),]
-        for (i in (nrow(fullSings):1)) {
+        fullSings = sort(fullSings, by=~sqsigma)
+        for (i in (length(fullSings):1)) {
             tl = min(fullSings$left[i], fullSings$right[i])
             tr = max(fullSings$left[i], fullSings$right[i])
             fullSings$left[i] = tl
             fullSings$right[i] = tr
         }
-        for (i in (nrow(fullSings):2)) {
-            if (abs(fullSings[i,]$sqsigma - fullSings[i-1,]$sqsigma) < fullSings[i,]$sqsigma/10 
-                        && abs(fullSings[i,]$position1 - fullSings[i-1,]$position1) < fullSings[i,]$sqsigma/100) {
-                    fullSings[i-1,4] = -42
+        for (i in (length(fullSings):2)) {
+            if (abs(fullSings[i]$sqsigma - fullSings[i-1]$sqsigma) < fullSings[i]$sqsigma/10 
+                        && abs(start(ranges(fullSings))[i] - start(ranges(fullSings))[i-1]) < fullSings[i]$sqsigma/100) {
+                    fullSings[i-1]$left = -42
             }
         }
-        fullSings = subset(fullSings, fullSings[,4] != -42)
+        fullSings = subset(fullSings, fullSings$left != -42)
         maxDetected = max(fullSings$sqsigma)
         singList = subset(fullSings, fullSings$sqsigma < maxDetected)
         maxSings = subset(fullSings, fullSings$sqsigma == maxDetected)
-        for (i in (nrow(singList):1)) {
+        for (i in (length(singList):1)) {
             tempSing = singList[i,]
-            tempLarger = subset(fullSings, as.numeric(fullSings$sqsigma) > as.numeric(tempSing$sqsigma))
-            for (j in 1:nrow(tempLarger)) {
+            tempLarger = subset(fullSings, fullSings$sqsigma > tempSing$sqsigma)
+            for (j in 1:length(tempLarger)) {
                 tempLarge = tempLarger[j,]
-                if ((as.numeric(tempSing$left) <= as.numeric(tempLarge$left) && as.numeric(tempSing$right) >= as.numeric(tempLarge$left)) 
-                || (as.numeric(tempSing$left) <= as.numeric(tempLarge$right) && as.numeric(tempSing$right) >= as.numeric(tempLarge$right))) {
-                    singList[i,3] = -42
+                if ((tempSing$left <= tempLarge$left && tempSing$right >= tempLarge$left) 
+                || (tempSing$left <= tempLarge$right && tempSing$right >= tempLarge$right)) {
+                    start(ranges(singList))[i] = -42
                 }
             }    
         }
-        outputSings = rbind(singList, maxSings)
-        outputSings = outputSings[order(outputSings$sqsigma),]
+        outputSings = c(singList, maxSings)
+        outputSings = sort(outputSings, by=~sqsigma)
 
-        object@singularities = subset(outputSings, outputSings[,3] != -42)
+        object@singularities = subset(outputSings, start(ranges(outputSings)) != -42)
         return(object)
     }
 )
@@ -162,9 +157,9 @@ setMethod("show", "Scale4C",
         cat("4C-seq scale space data\n")
         cat("Type:", class(object), "\n")
         cat("Viewpoint: ", viewpointChromosome(object), ":", viewpoint(object), "\n")
-        cat("Number of total fragments: ", nrow(rawData(object)), "\n")
-        cat("Points of interest: ", nrow(pointsOfInterest(object)), "\n")
+        cat("Number of total fragments: ", length(rawData(object)), "\n")
+        cat("Points of interest: ", length(pointsOfInterest(object)), "\n")
         cat("Maximum sigma of fingerprint map: ", nrow(fingerprint(object)) - 1, "\n")
-        cat("Number of singularities: ", nrow(singularities(object)), "\n")
+        cat("Number of singularities: ", length(singularities(object)), "\n")
     }
 )

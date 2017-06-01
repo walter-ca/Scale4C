@@ -1,7 +1,7 @@
 \name{Scale4C}
 
 \alias{Scale4C}
-\alias{Scale4C,numeric,character,data.frame-method}
+\alias{Scale4C,numeric,character,GRanges-method}
 
 
 \title{Creating a Scale4C object}
@@ -18,7 +18,7 @@ for plausibility.
 \item{viewpoint}{The experiment's viewpoint (start, single coordinate)}
 \item{viewpointChromosome}{The experiment's viewpoint Chromosome}
 \item{rawData}{Reads of the 4C-seq experiment per fragment on an interval 
-of interest (table with position and read data)}
+of interest (GRanges object with position and read data)}
 }
 
 \details{
@@ -47,7 +47,7 @@ An instance of the Scale4C class.
     # viewpoint data 
     csvFile <- system.file("extdata", "liverData.csv", package="Scale4C")
     liverReads <- importBasic4CseqData(csvFile, viewpoint = 21160072, 
-        distance = 1000000)
+        viewpointChromosome = "chr10", distance = 1000000)
     liverData = Scale4C(rawData = liverReads, viewpoint = 21160072,
         viewpointChromosome = "chr10")
     liverData

@@ -2,28 +2,26 @@ setClass("Scale4C",
     representation=list(           
         viewpoint="numeric",
         viewpointChromosome="character",
-        pointsOfInterest="data.frame",
-        rawData="data.frame",
+        pointsOfInterest="GRanges",
+        rawData="GRanges",
         scaleSpace="matrix",
         fingerprint="matrix",
-        singularities="data.frame"
+        singularities="GRanges"
     ),
 
     prototype=prototype(
         viewpoint=numeric(),
         viewpointChromosome=character(),
-        pointsOfInterest=data.frame(),
-        rawData=data.frame("position"=c(10,20,30),"reads"=c(1,2,3)),
+        pointsOfInterest=GRanges(),
+        rawData=GRanges(),
         scaleSpace=matrix(),
         fingerprint=matrix(),
-        singularities=data.frame()
+        singularities=GRanges()
     ),
 
     validity=function(object) {
-        if ((ncol(rawData(object)) != 2) | !(is.numeric(rawData(object)$position))
-            | !(is.numeric(rawData(object)$reads)))
-            return("Please check the format of your fragment data: two numeric 
-                columns (position, reads) are required")
+        if (ncol(mcols(rawData(object))) != 2)
+            return("Please check the format of your fragment data")
         return(TRUE)
     }
 )

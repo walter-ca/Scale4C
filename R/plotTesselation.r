@@ -1,7 +1,7 @@
 .plotTesselation <- function(data, minSQSigma = 5, maxSQSigma = -1, maxVis = -1, fileName = "tesselationPlot.pdf", width = 5, height = 5, xInterval = 100, yInterval = 100, chosenColour = c("grey50", "moccasin", "lightskyblue1", "beige", "azure"), useIndex = TRUE) {
 
     sample = rawData(data)$reads
-    positions = rawData(data)$position
+    positions = rawData(data)$meanPosition
     pos = (positions - min(positions)) / (max(positions) - min(positions)) * length(positions)
 
     if (useIndex) {
@@ -10,9 +10,6 @@
     }
 
     singData = singularities(data)
-    singData$sqsigma = as.numeric(singData$sqsigma)
-    singData$left = as.numeric(singData$left)
-    singData$right = as.numeric(singData$right)
 
     if (maxSQSigma == -1) {
         maxSQSigma = max(singData$sqsigma)
@@ -23,7 +20,7 @@
 
     singData = subset(singData, singData$sqsigma <= maxSQSigma & singData$sqsigma >= minSQSigma)
 
-    singData[singData$sqsigma == maxSQSigma,]$sqsigma = 0.0001 * (1:nrow(singData[singData$sqsigma == maxSQSigma,])) + maxSQSigma
+    singData[singData$sqsigma == maxSQSigma]$sqsigma = 0.0001 * (1:length(singData[singData$sqsigma == maxSQSigma])) + maxSQSigma
 
     singData$sqsigma = log2(singData$sqsigma)
 
@@ -34,7 +31,7 @@
 
     singData = singData[order(singData$sqsigma),]
 
-    for (k in nrow(singData):1) {
+    for (k in length(singData):1) {
 
         largerSings = subset(singData, singData$sqsigma > singData$sqsigma[k])
         leftSings = subset(largerSings, (largerSings$right <= singData$left[k]))  
@@ -43,19 +40,19 @@
 
         bottomSings = subset(singData, singData$sqsigma < singData$sqsigma[k] & singData$left >= singData$left[k] & singData$right <= singData$right[k])
 
-        if (nrow(leftSings) == 0 & nrow(topSings) == 0) {
+        if (length(leftSings) == 0 & length(topSings) == 0) {
             tempLeft = positions[1]
         } else {
             tempLeft = max(leftSings$right, topSings$left)
         }
-        if (nrow(rightSings) == 0 & nrow(topSings) == 0) {
+        if (length(rightSings) == 0 & length(topSings) == 0) {
             tempRight = positions[max(pos)]
         } else {
             tempRight = min(rightSings$left, topSings$right)
         }                 
 
         if (singData$type[k] == "peak" | singData$type[k] == "peak (VP)") {
-            if (nrow(bottomSings) == 0) {
+            if (length(bottomSings) == 0) {
                 bottom = -0.5
             } else {
                 bottom = max(bottomSings$sqsigma)
@@ -64,7 +61,7 @@
             rect(singData$left[k], bottom, singData$right[k], singData$sqsigma[k], col = chosenColour[2], border=chosenColour[1])
         }
         if (singData$type[k] == "valley") {
-            if (nrow(bottomSings) == 0) {
+            if (length(bottomSings) == 0) {
                 bottom = -0.5
             } else {
                 bottom = max(bottomSings$sqsigma)
@@ -73,12 +70,12 @@
             rect(singData$left[k], bottom, singData$right[k], singData$sqsigma[k], col = chosenColour[3], border=chosenColour[1])
         }
         if (singData$type[k] == "tracking problem") {
-            if (nrow(topSings) %% 2 == 0) {
+            if (length(topSings) %% 2 == 0) {
                 tempCol = chosenColour[2]
             } else {
                 tempCol = chosenColour[3]
             }
-            if (nrow(bottomSings) == 0) {
+            if (length(bottomSings) == 0) {
                 bottom = -0.5
             } else {
                 bottom = max(bottomSings$sqsigma)
@@ -91,18 +88,18 @@
     }
 
     poi = pointsOfInterest(data)
-    if (nrow(poi) != 0) {
+    if (length(poi) != 0) {
         if (useIndex) {
-            for (i in 1:nrow(poi)) {
-                points(poi$index[i], (log2(maxVis * 0.75)), cex = 1.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
+            for (i in 1:length(poi)) {
+                points(poi$index[i], (log2(maxVis * 0.75)), cex = 1.0, pch = 25, col = poi$colour[i], bg = poi$colour[i])
                 text(poi$index[i], (log2(maxVis * 0.85)), poi$name[i], cex = 1.0)
-                lines(rep(poi$index[i],2), c(-0.5,(log2(maxVis * 0.75))), type = "l", col = as.vector(poi$colour[i]), lty = "dashed")
+                lines(rep(poi$index[i],2), c(-0.5,(log2(maxVis * 0.75))), type = "l", col = poi$colour[i], lty = "dashed")
             }
         } else {
-            for (i in 1:nrow(poi)) {
-                points(poi$position[i], (log2(maxVis * 0.75)), cex = 1.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
-                text(poi$position[i], (log2(maxVis * 0.85)), poi$name[i], cex = 1.0)
-                lines(rep(poi$position[i],2), c(-0.5,(log2(maxVis * 0.75))), type = "l", col = as.vector(poi$colour[i]), lty = "dashed")
+            for (i in 1:length(poi)) {
+                points(start(ranges(poi))[i], (log2(maxVis * 0.75)), cex = 1.0, pch = 25, col = poi$colour[i], bg = poi$colour[i])
+                text(start(ranges(poi))[i], (log2(maxVis * 0.85)), poi$name[i], cex = 1.0)
+                lines(rep(start(ranges(poi))[i],2), c(-0.5,(log2(maxVis * 0.75))), type = "l", col = poi$colour[i], lty = "dashed")
             }
         }
     }

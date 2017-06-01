@@ -3,21 +3,21 @@
     rawFP = fingerprint(data)
     singListType = NULL
 
-    for (i in 1:nrow(singList)) {
+    for (i in 1:length(singList)) {
 
         sigma = singList$sqsigma[i]
 
-        posLeft = max(1, singList$position1[i])
+        posLeft = max(1, start(ranges(singList))[i])
         valueLeft = as.numeric(rawFP[sigma, posLeft])
 
         if (valueLeft == 0) {
-            posLeft = max(1, singList$position1[i] - 1)
+            posLeft = max(1, start(ranges(singList))[i] - 1)
             valueLeft = as.numeric(rawFP[sigma, posLeft])
         }
-        posRight = max(1, singList$position2[i])
+        posRight = max(1, end(ranges(singList))[i])
         valueRight = as.numeric(rawFP[sigma, posRight])
         if (valueRight == 0) {
-            posRight = singList$position2[i] + 1
+            posRight = end(ranges(singList))[i] + 1
             valueRight = as.numeric(rawFP[sigma, posRight])
         }
 
@@ -87,8 +87,8 @@
             singListType[i] = "tracking problem"
         }   
     }
-    singList$coordinates1 = rawData(data)$position1[singList$position1]
-    singList$coordinates2 = rawData(data)$position2[singList$position2]
+    #singList$coordinates1 = start(ranges(rawData(data)))[start(ranges(singList))]
+    #singList$coordinates2 = end(ranges(rawData(data)))[end(ranges(singList))]
     singList$type = singListType
 
     return(singList)
@@ -96,7 +96,7 @@
 
 
 setMethod("traceContour",
-    signature=signature(data="Scale4C", singList = "data.frame"),
+    signature=signature(data="Scale4C", singList = "GRanges"),
     .traceContour)
 
 

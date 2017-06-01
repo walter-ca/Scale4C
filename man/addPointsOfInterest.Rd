@@ -14,17 +14,18 @@ object, which are subsequently used to mark points of interest in created plots.
 
 \arguments{
 \item{data}{Scale4C object the points are to be added to}
-\item{poi}{Points of interest data, in a table or bed-like format. 
-Important: column names must be specified and include 'position', 'colour' and
+\item{poi}{Points of interest data, in a GRanges object. 
+Important: column names must be specified and include 'colour' and
 'name' for each point of interest with appropriate values}
 }
 
 \details{
 The function \code{addPointsOfInterest} adds predefined points of interest to 
-a \code{Scale4C} object. Each point of interest is defined by a position, 
-colour, and its name. A bed file or text file can be used to store the 
+a \code{Scale4C} object. Each point of interest is defined by 'chr', 'start', 'end', 
+'colour', and 'name'. A bed file or text file can be used to store the 
 information, however, column names have to be added before import. Other 
-additional columns are ignored by the function.
+additional columns are ignored by the function. The function then converts the
+information to a GRanges object.
 }
 
 \value{A data frame that contains the data for all points of interest}

@@ -1,5 +1,7 @@
 import(methods)
 import(smoothie)
+import(GenomicRanges)
+import(IRanges)
 
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("graphics", "axis", "lines", "plot", "points", "rect", "text")
@@ -16,7 +18,6 @@ exportMethods(
     outputScaleSpaceTree,
 
     importBasic4CseqData,
-    importBedData,
     addPointsOfInterest,
 
     plotInflectionPoints,

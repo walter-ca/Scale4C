@@ -3,7 +3,7 @@
     if (plotIP) {
         ip = (fingerprint(data))[sqsigma-1,] 
     }
-    pos = rawData(data)$position
+    pos = rawData(data)$meanPosition
     index = 1:length(pos)
 
     if (useIndex) {
@@ -56,18 +56,18 @@
     }
 
     poi = pointsOfInterest(data)
-    if (nrow(poi) != 0) {
+    if (length(poi) != 0) {
         if (useIndex) {
-            for (i in 1:nrow(poi)) {
+            for (i in 1:length(poi)) {
                 points(poi$index[i], round(maxVis * 0.95), cex = 1.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
                 text(poi$index[i], round(maxVis * 0.99), poi$name[i], cex = 1.0)
                 lines(rep(poi$index[i],2), c(0,round(maxVis * 0.95)), type = "l", col = as.vector(poi$colour[i]), lty = "dashed")
             }
         } else {
-            for (i in 1:nrow(poi)) {
-                points(poi$position[i], round(maxVis * 0.95), cex = 1.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
-                text(poi$position[i], round(maxVis * 0.99), poi$name[i], cex = 1.0)
-                lines(rep(poi$position[i],2), c(0,round(maxVis * 0.95)), type = "l", col = as.vector(poi$colour[i]), lty = "dashed")
+            for (i in 1:length(poi)) {
+                points(start(ranges(poi))[i], round(maxVis * 0.95), cex = 1.0, pch = 25, col = as.vector(poi$colour[i]), bg = as.vector(poi$colour[i]))
+                text(start(ranges(poi))[i], round(maxVis * 0.99), poi$name[i], cex = 1.0)
+                lines(rep(start(ranges(poi))[i],2), c(0,round(maxVis * 0.95)), type = "l", col = as.vector(poi$colour[i]), lty = "dashed")
             }
         }
     }

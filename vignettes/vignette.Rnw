@@ -59,7 +59,7 @@ into the R console. \\
 
 \subsection{Provided functionality}
 
-\Rpackage{Scale4C} requires the R-packages \Rpackage{smoothie}. 
+\Rpackage{Scale4C} requires the R-packages \Rpackage{smoothie}, \Rpackage{IRanges} and \Rpackage{GenomicRanges}. 
 
 This package provides the following basic functions for the scale-space transformation of 4C-seq data: \\
 \begin{itemize}
@@ -87,13 +87,14 @@ Similar to \Rpackage{Basic4Cseq}, \Rpackage{Scale4C} includes fetal liver data o
 
 \subsection{Import of raw fragment data}
 
-\Rpackage{Scale4C} needs two pieces of information for any 4C-seq fragment: a position in the genome, and a corresponding read count. It doesn't matter where this data comes from, as long as it can somehow be imported into R and be transformed into a table with two columns ('position' and 'reads').
+\Rpackage{Scale4C} expects a \Rclass{GRanges} object as input, which includes chromosome name, start, end, "reads" and "meanPosition" (mean of start and end). If you have got an appropriate data frame or similar, the \Rpackage{GenomicRanges} contains the relevant conversion functions.
 
 Since \Rpackage{Basic4Cseq} already offers an output function for fragment data, albeit with more information than \Rpackage{Scale4C} will ever need, a converter function is included in this package that can read \Rpackage{Basic4Cseq}'s output tables and extract the relevant data. Per default, this is the fragment data within a certain distance from the viewpoint of the experiment.
 
 <<label=importBasic4CseqData, eval=TRUE>>=
 csvFile <- system.file("extdata", "liverData.csv", package="Scale4C")
-liverReads <- importBasic4CseqData(csvFile, viewpoint = 21160072, distance = 1000000)
+liverReads <- importBasic4CseqData(csvFile, viewpoint = 21160072, 
+    viewpointChromosome = "chr10", distance = 1000000)
 head(liverReads)
 @
 
@@ -102,15 +103,6 @@ Note: The {\it system.file()} expression is used to locate the example data from
 {\it csvFile <- "../myFolder/myFragmentData.csv"}.
 
 \centerline{}
-
-The import of bed-like files works similarly. Here, the package assumes that the position data is specified in the second column and the read data in the fourth column, while the chromosome is provided in the first column.
-
-<<label=importBedData, eval=TRUE>>=
-csvFile <- system.file("extdata", "demoData.bed", package="Scale4C")
-testReads <- importBedData(csvFile, chromosome = "chr10", viewpoint = 21160072, 
-                distance = 1000000)
-head(testReads)
-@
 
 
 \subsection{Initialisation of a Scale4C object}
@@ -180,8 +172,8 @@ There are two issues with the fingerprint map: First, the viewpoint is not ident
 data(liverData)
 tail(singularities(liverData))
 # add viewpoint singularity
-singularities(liverData) = rbind(singularities(liverData), 
-    c(39, 40, 2500, 39, 40, "peak"))
+singularities(liverData) = c(singularities(liverData), GRanges("chr10", IRanges(39, 42),
+    "*", "sqsigma" = 2500, "left" = 40, "right" = 41, "type" = "peak"))
 # correct singularity's coordinates
 tempSingularities = singularities(liverData)
 tempSingularities$left[33] = 235
@@ -233,7 +225,7 @@ plotTesselation(liverData, fileName = "")
 
 The tesselation allows to assess the qualitative structure of the provided 4C-seq signal. The development of features through different smoothing scales can be traced, and comparisons between samples regarding their complexity become possible by comparing the number of singularities in a certain range of choice. Since 4C-seq is about contact intensities and chromosomal interactions, the most interesting regions tend to be peaks that persist for larger intervals of $\sigma$. 
 
-We can also output the underlying structure as a simple table, with or without $\sigma$ $log2$ transformation. If {\it outputPeaks} is set to FALSE, the output table shows a list of all central features, as specified by singularities in the fingerprint map, and their corresponding adjacent left and adjacent right features with their range of persistence in $\sigma$, and left and right extent in fragments / genomic position. Otherwise, valleys are omitted from the output, and the data is exported in bed-like format. The features' signals, i.e. the mean read counts for the identified intervals, are also provided.
+We can also output the underlying structure as a simple table, with or without $\sigma$ $log2$ transformation. If {\it outputPeaks} is set to FALSE, the output table shows a list of all central features, as specified by singularities in the fingerprint map, and their corresponding adjacent left and adjacent right features with their range of persistence in $\sigma$, and left and right extent in fragments / genomic position. Otherwise, valleys are omitted from the output, and the data is exported as \Rpackage{GenomicRanges} object. The features' signals, i.e. the mean read counts for the identified intervals, are also provided.
 
 <<label=outputScaleSpaceTree, eval=TRUE>>=
 head(outputScaleSpaceTree(liverData, useLog = FALSE))

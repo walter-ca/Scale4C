@@ -2,20 +2,16 @@
 
     singData = singularities(data)
     position = rawData(data)
-    position$index = 1:nrow(position)
-    colnames(position) = c("pos","reads","index")
+    position$index = 1:length(position)
     scaleSpace = scaleSpace(data)
     if (useIndex) {
-        position$pos = position$index
+        position$meanPosition = position$index
     }
 
-    singData$sqsigma = as.numeric(singData$sqsigma)
-    singData$left = as.numeric(singData$left)
-    singData$right = as.numeric(singData$right)
-    singData = singData[order(singData$sqsigma),]
+    singData = sort(singData, by=~sqsigma)
 
     if (useLog) {
-        singData$sqsigma = log2(as.numeric(singData$sqsigma))
+        singData$sqsigma = log2(singData$sqsigma)
     }
 
     output = data.frame("centre_maxSSQ" = numeric(), "centre_minSSQ" = numeric(), "centre_leftPos" = numeric(), 
@@ -26,7 +22,7 @@
         "right_length" = numeric(), "right_signal" = numeric(),
         stringsAsFactors = FALSE)
 
-    for (k in nrow(singData):1) {
+    for (k in length(singData):1) {
 
         largerSings = subset(singData, singData$sqsigma > singData$sqsigma[k])
         leftSings = subset(largerSings, (largerSings$right <= singData$left[k]))  
@@ -34,17 +30,17 @@
         topSings = subset(largerSings, (largerSings$left <= singData$left[k]) & (largerSings$right >= singData$right[k]))
         bottomSings = subset(singData, singData$sqsigma < singData$sqsigma[k] & singData$left >= singData$left[k] & singData$right <= singData$right[k])
 
-        if (nrow(leftSings) == 0 & nrow(topSings) == 0) {
-            tempLeft = min(position$pos)
+        if (length(leftSings) == 0 & length(topSings) == 0) {
+            tempLeft = min(position$meanPosition)
         } else {
             tempLeft = max(leftSings$right, topSings$left)
         }
-        if (nrow(rightSings) == 0 & nrow(topSings) == 0) {
-            tempRight = max(position$pos)
+        if (length(rightSings) == 0 & length(topSings) == 0) {
+            tempRight = max(position$meanPosition)
         } else {
             tempRight = min(rightSings$left, topSings$right)
         }
-        if (nrow(bottomSings) == 0) {
+        if (length(bottomSings) == 0) {
             bottom = 0
         } else {
             bottom = max(bottomSings$sqsigma)
@@ -58,12 +54,12 @@
         }
         bottomLeftSings = subset(singData, singData$sqsigma < singData$sqsigma[k] & singData$left >= tempLeft & singData$right <= singData$left[k])
         bottomRightSings = subset(singData, singData$sqsigma < singData$sqsigma[k] & singData$left >= singData$right[k] & singData$right <= tempRight)
-        if (nrow(bottomLeftSings) == 0) {
+        if (length(bottomLeftSings) == 0) {
             bottomLeft = 0
         } else {
             bottomLeft = max(bottomLeftSings$sqsigma)
         }
-        if (nrow(bottomRightSings) == 0) {
+        if (length(bottomRightSings) == 0) {
             bottomRight = 0
         } else {
             bottomRight = max(bottomRightSings$sqsigma)
@@ -71,30 +67,30 @@
 
         cl = min(singData$left[k], singData$right[k])
         cr = max(singData$left[k], singData$right[k])
-        centreData = subset(position, position$pos >= cl & position$pos < cr)
-        if (nrow(centreData) > 0) {
-            centreLength = nrow(centreData)
-            centreSignal = mean(position$reads[centreData[1,3]:centreData[nrow(centreData),3]])
+        centreData = subset(position, position$meanPosition >= cl & position$meanPosition < cr)
+        if (length(centreData) > 0) {
+            centreLength = length(centreData)
+            centreSignal = mean(position$reads[centreData$index[1]:centreData$index[length(centreData)]])
         } else {
             centreLength = -1
             centreSignal = -1
         }
         ll = min(singData$left[k], tempLeft)
         lr = max(singData$left[k], tempLeft)
-        leftData = subset(position, position$pos >= ll & position$pos < lr)
-        if (nrow(leftData) > 0) {
-            leftLength = nrow(leftData)
-            leftSignal = mean(position$reads[leftData[1,3]:leftData[nrow(leftData),3]])
+        leftData = subset(position, position$meanPosition >= ll & position$meanPosition < lr)
+        if (length(leftData) > 0) {
+            leftLength = length(leftData)
+            leftSignal = mean(position$reads[leftData$index[1]:leftData$index[length(leftData)]])
         } else {
             leftLength = -1
             leftSignal = -1
         }
         rl = min(singData$right[k], tempRight)
         rr = max(singData$right[k], tempRight)
-        rightData = subset(position, position$pos >= rl & position$pos < rr)
-        if (nrow(rightData) > 0) {
-            rightLength = nrow(rightData)
-            rightSignal = mean(position$reads[rightData[1,3]:rightData[nrow(rightData),3]])
+        rightData = subset(position, position$meanPosition >= rl & position$meanPosition < rr)
+        if (length(rightData) > 0) {
+            rightLength = length(rightData)
+            rightSignal = mean(position$reads[rightData$index[1]:rightData$index[length(rightData)]])
         } else {
             rightLength = -1
             rightSignal = -1
@@ -118,8 +114,7 @@
         output = subset(output, output[,5] != "valley")
         output[,1] = viewpointChromosome(data)
         output[,6] = round(as.numeric(output[,6]) * as.numeric(output[,7]))
-        output = output[,c(1,3,4,6)]
-        colnames(output) = c("chr", "start", "end", "total")
+        output = GRanges(output[,1], IRanges(as.numeric(output[,3]), as.numeric(output[,4])), "total" = output[,6])
     }
 
     return(output)

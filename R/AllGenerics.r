@@ -22,13 +22,9 @@ setGeneric("traceContour", signature=c("data", "singList"),
 
 
 # generics for export / import
-setGeneric("importBasic4CseqData", signature=c("rawFile", "viewpoint", "distance"),
-    function(rawFile, viewpoint, distance, useFragEnds = TRUE)
+setGeneric("importBasic4CseqData", signature=c("rawFile", "viewpoint", "viewpointChromosome", "distance"),
+    function(rawFile, viewpoint, viewpointChromosome, distance, useFragEnds = TRUE)
         standardGeneric("importBasic4CseqData"))
-
-setGeneric("importBedData", signature=c("rawFile", "chromosome", "viewpoint", "distance"),
-    function(rawFile, chromosome, viewpoint, distance)
-        standardGeneric("importBedData"))
 
 setGeneric("addPointsOfInterest", signature=c("data", "poi"),
     function(data, poi)

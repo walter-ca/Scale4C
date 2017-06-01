@@ -40,22 +40,17 @@
     }
 
     # make list of singularities
-    singList = data.frame("position1" = integer(0), "position2" = integer(0), "sqsigma" = integer(0), stringsAsFactors = FALSE)
+    singList = GRanges(character(0), IRanges(integer(0), integer(0)), "sqsigma" = integer(0))
 
     for (i in 1:length(singularities)) {
         if (length(singularities[[i]]) > 1) {
             for (j in 1:length(singularities[[i]])) {
-                singList = rbind(singList, data.frame("position1" = max(2, singularities[[i]][j] - 2), "position2" = max(singularities[[i]][j], 3), "sqsigma" = i, stringsAsFactors = FALSE))
+                singList = c(singList, GRanges(viewpointChromosome(data), IRanges(max(1, singularities[[i]][j] - 3), max(singularities[[i]][j]-2, 1)), "sqsigma" = i))
             }
         } else if (singularities[[i]] != 0) {
-            singList = rbind(singList, data.frame("position1" = max(2, singularities[[i]][1] - 2), "position2" = max(singularities[[i]], 3), "sqsigma" = i, stringsAsFactors = FALSE))
+            singList = c(singList, GRanges(viewpointChromosome(data), IRanges(max(1, singularities[[i]][1] - 3), max(singularities[[i]]-2, 1)), "sqsigma" = i))
         }
     }
-    singList$position1 = as.numeric(singList$position1) - 1
-    singList$position2 = as.numeric(singList$position2) - 2
-    singList$sqsigma = as.numeric(singList$sqsigma)
-
-    row.names(singList) = NULL
 
     if (guessViewpoint) {
 
@@ -71,7 +66,7 @@
             if (maxFP[i] == "2" & oneFound) {
                 oneFound = FALSE
                 tempRight = i
-                singList = rbind(singList, c(tempLeft, tempRight, nrow(rawFP))) 
+                singList = c(singList, GRanges(viewpointChromosome(data), IRanges(tempLeft, tempRight), "sqsigma" = nrow(rawFP))) 
             }
         }
 
@@ -80,49 +75,48 @@
     singList = traceContour(data, singList, outputTrackingInfo)
 
     # clean up singularity list: a singularity with a smaller sqsigma that partly overlaps the interval of a singularity with a higher sqsigma is probably not a true singularity
-    maxDetected = max(as.numeric(singList$sqsigma))
+    maxDetected = max(singList$sqsigma)
     fullSings = singList
     singList = subset(fullSings, as.numeric(fullSings$sqsigma) < maxDetected)
     maxSings = subset(fullSings, as.numeric(fullSings$sqsigma) == maxDetected)
-    for (i in (nrow(singList):1)) {
+
+    for (i in (length(singList):1)) {
         tempSing = singList[i,]
         tempLarger = subset(fullSings, as.numeric(fullSings$sqsigma) > as.numeric(tempSing$sqsigma))
-        for (j in 1:nrow(tempLarger)) {
+        for (j in 1:length(tempLarger)) {
             tempLarge = tempLarger[j,]
             if ((as.numeric(tempSing$left) <= as.numeric(tempLarge$left) & as.numeric(tempSing$right) >= as.numeric(tempLarge$left)) 
             | (as.numeric(tempSing$left) <= as.numeric(tempLarge$right) & as.numeric(tempSing$right) >= as.numeric(tempLarge$right))) {
-                singList[i,2] = -42
+                singList$sqsigma[i] = -42
             }
         }    
     }
-    singList = subset(singList, singList[,2] != -42)
+    singList = subset(singList, singList$sqsigma != -42)
 
-    for (i in 1:(nrow(singList))) {
+    for (i in 1:(length(singList))) {
         tempSing = singList[i,]
         tempLarger = subset(singList, as.numeric(singList$sqsigma) > as.numeric(tempSing$sqsigma))
-        if (nrow(tempLarger) > 0) {
+        if (length(tempLarger) > 0) {
             if (as.numeric(tempSing$left) %in% c(as.numeric(tempLarger$left), as.numeric(tempLarger$right), as.numeric(tempLarger$left) - 1, 
             as.numeric(tempLarger$left) + 1, as.numeric(tempLarger$right) - 1, as.numeric(tempLarger$right) + 1)
             | as.numeric(tempSing$right) %in% c(as.numeric(tempLarger$left), as.numeric(tempLarger$right), as.numeric(tempLarger$left) - 1, 
             as.numeric(tempLarger$left) + 1, as.numeric(tempLarger$right) - 1, as.numeric(tempLarger$right) + 1)) {
-                singList[i,2] = -42
+                singList$sqsigma[i] = -42
             }
         }
     }
-    singList = subset(singList, singList[,2] != -42)
-    singList = rbind(singList, maxSings)
-    singList$sqsigma = as.numeric(singList$sqsigma)
-    singList = singList[order(singList$sqsigma),]
+    singList = subset(singList, singList$sqsigma != -42)
+    singList = c(singList, maxSings)
+    singList = sort(singList, by=~sqsigma)
 
     # convert position if necessary
     if (!(useIndex)) {
-        singList$position1 = rawData(data)$position[singList$position1]
-        singList$position2 = rawData(data)$position[singList$position2]
-        singList$left = rawData(data)$position[singList$left]
-        singList$right = rawData(data)$position[singList$right]
+        ranges(singList) = IRanges(rawData(data)$meanPosition[start(ranges(singList))], rawData(data)$meanPosition[end(ranges(singList))])
+        singList$left = rawData(data)$meanPosition[singList$left]
+        singList$right = rawData(data)$meanPosition[singList$right]
     }
 
-    singList$sqsigma = as.numeric(singList$sqsigma) + as.numeric(minSQSigma) - 1
+    singList$sqsigma = singList$sqsigma + minSQSigma - 1
     row.names(singList) = NULL
 
     return(singList)

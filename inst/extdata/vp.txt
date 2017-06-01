@@ -1,4 +1,4 @@
-position	name	colour
-21160072	P	grey20
-21197709	-36	dodgerblue2
-21241139	-81	firebrick3
+chr	start	end	name	colour
+chr10	21160072	21160073	P	grey20
+chr10	21197709	21197710	-36	dodgerblue2
+chr10	21241139	21241140	-81	firebrick3

@@ -1,7 +1,7 @@
 .plotInflectionPoints <- function(data, sqsigma, fileName = "inflectionPlot.pdf", width = 9, height = 5, maxVis = 5000, useIndex = TRUE, plotIP = TRUE) {
 
     if (plotIP) {
-        ip = (fingerprint(data))[sqsigma-1,] 
+        ip = (t(assay(scaleSpace(data), 2)))[sqsigma-1,] 
     }
     pos = rawData(data)$meanPosition
     index = 1:length(pos)

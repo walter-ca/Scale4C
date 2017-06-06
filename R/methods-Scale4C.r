@@ -83,23 +83,9 @@ setMethod("scaleSpace", signature(object="Scale4C"),
 )
 
 setReplaceMethod("scaleSpace",
-    signature=signature(object="Scale4C", value="matrix"),
+    signature=signature(object="Scale4C", value="SummarizedExperiment"),
     function(object, value) {
         object@scaleSpace = value
-        return(object)
-    }
-)
-
-setMethod("fingerprint", signature(object="Scale4C"),
-    function(object) {
-        return(object@fingerprint)
-    }
-)
-
-setReplaceMethod("fingerprint",
-    signature=signature(object="Scale4C", value="matrix"),
-    function(object, value) {
-        object@fingerprint = value
         return(object)
     }
 )
@@ -159,7 +145,7 @@ setMethod("show", "Scale4C",
         cat("Viewpoint: ", viewpointChromosome(object), ":", viewpoint(object), "\n")
         cat("Number of total fragments: ", length(rawData(object)), "\n")
         cat("Points of interest: ", length(pointsOfInterest(object)), "\n")
-        cat("Maximum sigma of fingerprint map: ", nrow(fingerprint(object)) - 1, "\n")
+        cat("Maximum sigma of fingerprint map: ", ncol(scaleSpace(object)) - 1, "\n")
         cat("Number of singularities: ", length(singularities(object)), "\n")
     }
 )

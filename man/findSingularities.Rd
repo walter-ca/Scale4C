@@ -51,10 +51,7 @@ by its minimal / left and maximal / right position.}
 \examples{
     # read prepared example data
     data(liverData)
-    # overwrite precomputed fingerprint map with a fraction to increase speed 
-    #   for example
-    fingerprint(liverData) = fingerprint(liverData)[1:20,1:40]
-    singularities(liverData) = findSingularities(liverData, 2, useIndex = TRUE)
+    singularities(liverData) = findSingularities(liverData, 5, useIndex = TRUE)
     singularities(liverData)
 }
 

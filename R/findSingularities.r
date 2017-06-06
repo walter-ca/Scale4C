@@ -1,6 +1,6 @@
 .findSingularities <- function(data, minSQSigma = 5, outputTrackingInfo = FALSE, guessViewpoint = FALSE, useIndex = TRUE) {
 
-    rawFP = fingerprint(data)[(minSQSigma+1):nrow(fingerprint(data)),]
+    rawFP = (t(assay(scaleSpace(data), 2)))[(minSQSigma+1):ncol(scaleSpace(data)),]
 
     # track singularities
     singularities = list(0)

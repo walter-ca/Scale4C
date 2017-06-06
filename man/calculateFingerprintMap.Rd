@@ -26,16 +26,17 @@ stored in the corresponding line of the fingerprint map, i.e. a 2D matrix
 (position x sigma). 
 }
 
-\value{A matrix containing the fingerprint map for a Scale4C object, i.e. a 
-matrix with quite a lot of zeros and the occasional 2 or -1 as symbols for 
-inflection points}
+\value{A Scale4C object containing the fingerprint map for a Scale4C object, 
+i.e. a matrix with quite a lot of zeros and the occasional 2 or -1 as symbols 
+for inflection points. The fingerprint map is included as second assay of 
+the Scale4C object's scaleSpace SummarizedExperiment slot.}
 
 \examples{
     # read prepared example data
     data(liverData)
     # use small maxSQSigma for a fast example
-    fingerprint(liverData)<-calculateFingerprintMap(liverData, maxSQSigma = 10)
-    head(fingerprint(liverData)[,1:20])
+    liverData<-calculateFingerprintMap(liverData, maxSQSigma = 50)
+    head(t(assay(scaleSpace(liverData), 2))[1:10,1:20])
 }
 
 \author{Carolin Walter}

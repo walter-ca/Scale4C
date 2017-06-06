@@ -79,12 +79,6 @@ setGeneric("scaleSpace", function(object) {
 setGeneric("scaleSpace<-", function(object, value) {
     standardGeneric("scaleSpace<-")})
 
-setGeneric("fingerprint", function(object) {
-    standardGeneric("fingerprint")})
-
-setGeneric("fingerprint<-", function(object, value) {
-    standardGeneric("fingerprint<-")})
-
 setGeneric("singularities", function(object) {
     standardGeneric("singularities")})
 

@@ -19,7 +19,9 @@
         scaleSpace[j,] = kernel2dsmooth(as.matrix(t(rawData(data)$reads)), K = gaussKernel)
     }
 
-    return(scaleSpace)
+    fullScaleSpace = SummarizedExperiment(assays = list(scaleSpace = t(scaleSpace)), rowRanges = rawData(data), colData = data.frame("sigma" = c(0.5, 1:maxSQSigma)))
+
+    return(fullScaleSpace)
 }
 
 

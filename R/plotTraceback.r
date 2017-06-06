@@ -1,7 +1,7 @@
 .plotTraceback <- function(data, maxSQSigma = -1, fileName = "tracebackPlot.pdf", width = 15, height = 15, useIndex = TRUE) {
 
     if (maxSQSigma == -1) {
-        maxSQSigma = nrow(fingerprint(data))
+        maxSQSigma = nrow(t(assay(scaleSpace(data), 2)))
     }
     coordPos = rawData(data)
     coordPos$index = 1:length(coordPos)
@@ -15,10 +15,10 @@
     if (fileName != "") {  
         pdf(file = fileName, title = "test", width = width, height = height, useDingbats = FALSE)
     }
-    plot(c(min(pos),max(pos)), c(1,maxSQSigma), type = "n", xlab = "position", ylab = "sigma square")#, xaxt = "n")
+    plot(c(min(pos),max(pos)), c(1,maxSQSigma), type = "n", xlab = "position", ylab = "sigma square")
 
     for (k in 1:maxSQSigma) {
-        zcptemp = (fingerprint(data))[k,]
+        zcptemp = (t(assay(scaleSpace(data), 2)))[k,]
         indexPlus = (pos)[grepl("2", zcptemp)]
         indexMinus = (pos)[grepl("-1", zcptemp)]
         lines(indexPlus, rep(k, length(indexPlus)), type = "p", col = "grey80", cex = 0.3)

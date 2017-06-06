@@ -2,6 +2,7 @@ import(methods)
 import(smoothie)
 import(GenomicRanges)
 import(IRanges)
+import(SummarizedExperiment)
 
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("graphics", "axis", "lines", "plot", "points", "rect", "text")
@@ -30,7 +31,6 @@ exportMethods(
     pointsOfInterest, "pointsOfInterest<-",
     rawData, "rawData<-",
     scaleSpace, "scaleSpace<-",
-    fingerprint, "fingerprint<-",
     singularities, "singularities<-"
 )
 

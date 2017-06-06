@@ -1,6 +1,6 @@
 .traceContour <- function(data, singList, outputTrackingInfo = FALSE) {
 
-    rawFP = fingerprint(data)
+    rawFP = t(assay(scaleSpace(data), 2))
     singListType = NULL
 
     for (i in 1:length(singList)) {
@@ -87,8 +87,7 @@
             singListType[i] = "tracking problem"
         }   
     }
-    #singList$coordinates1 = start(ranges(rawData(data)))[start(ranges(singList))]
-    #singList$coordinates2 = end(ranges(rawData(data)))[end(ranges(singList))]
+
     singList$type = singListType
 
     return(singList)

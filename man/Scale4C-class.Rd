@@ -21,11 +21,7 @@
 \alias{scaleSpace}
 \alias{scaleSpace,Scale4C-method}
 \alias{scaleSpace<-}
-\alias{scaleSpace<-,Scale4C,matrix-method}
-\alias{fingerprint}
-\alias{fingerprint,Scale4C-method}
-\alias{fingerprint<-}
-\alias{fingerprint<-,Scale4C,matrix-method}
+\alias{scaleSpace<-,Scale4C,SummarizedExperiment-method}
 \alias{singularities}
 \alias{singularities,Scale4C-method}
 \alias{singularities<-}
@@ -55,11 +51,9 @@ representing any points of interest to be marked in the visualizations
 \item{\code{rawData}:}{Object of class \code{"GRanges"} representing 
 the 4C-seq reads (or signal strength) of the experiment at given genomic 
 positions}
-\item{\code{scaleSpace}:}{Object of class \code{"matrix"} representing 
-the gradually smoothed 4C-seq signal}
-\item{\code{fingerprint}:}{Object of class \code{"matrix"} representing 
-the scale-space fingerprint map, i.e. a collection of inflection points 
-in the smoothed signal}
+\item{\code{scaleSpace}:}{Object of class \code{"SummarizedExperiment"} 
+representing the gradually smoothed 4C-seq signal ('scale space') in its
+first assay and the corresponding fingerprint map in its second assay.}
 \item{\code{singularities}:}{Object of class \code{"GRanges"} 
 representing singularities in the fingerprint map for the given 4C-seq signal}
 }
@@ -88,14 +82,10 @@ Getter-method for the rawData slot.}
 Setter-method for the scaleSpace slot.}
 \item{scaleSpace}{\code{signature(object = "Scale4C")}: 
 Getter-method for the scaleSpace slot.}
-\item{fingerprint<-}{\code{signature(object = "Scale4C", value = "matrix")}: 
-Setter-method for the fingerprint slot.}
-\item{fingerprint}{\code{signature(object = "Scale4C")}: 
-Getter-method for the fingerprint slot.}
 \item{singularities<-}{\code{signature(object = "Scale4C", 
     value = "GRanges")}: 
 Setter-method for the singularities slot.}
-\item{nearCisFragments}{\code{signature(object = "Scale4C")}: 
+\item{singularities}{\code{signature(object = "Scale4C")}: 
 Getter-method for the singularities slot.}
 }
 }

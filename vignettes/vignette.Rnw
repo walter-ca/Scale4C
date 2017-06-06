@@ -59,7 +59,7 @@ into the R console. \\
 
 \subsection{Provided functionality}
 
-\Rpackage{Scale4C} requires the R-packages \Rpackage{smoothie}, \Rpackage{IRanges} and \Rpackage{GenomicRanges}. 
+\Rpackage{Scale4C} requires the R-packages \Rpackage{smoothie}, \Rpackage{IRanges}, \Rpackage{SummarizedExperiment} and \Rpackage{GenomicRanges}. 
 
 This package provides the following basic functions for the scale-space transformation of 4C-seq data: \\
 \begin{itemize}
@@ -75,7 +75,7 @@ Optional functions include:\\
     \item \Rfunction{importBasic4CseqData}: transforms \Rpackage{Basic4Cseq}'s fragment-based table output for use with \Rpackage{Scale4C}
     \item \Rfunction{plotTraceback}: plots the original fingerprint map and traceback results for a given 4C-seq signal
     \item \Rfunction{plotInflectionPoints}: plots the smoothed 4C-seq signal for one chosen $\sigma$, with or without matching inflection points
-    \item \Rfunction{outputScaleSpaceTree}: outputs a simple table with start, end and size (i.e. range of $\sigma$) for detected features, based on the singularity-derived scale-space tree data
+    \item \Rfunction{outputScaleSpaceTree}: outputs a \Rpackage{GenomicRanges} object, including the size (i.e. range of $\sigma$) for detected features, based on the singularity-derived scale-space tree data
 \end{itemize}
 
 In addition to the examples presented in this vignette, more detailed information on the functions' parameters and additional examples are presented in the corresponding manual pages.
@@ -107,7 +107,7 @@ Note: The {\it system.file()} expression is used to locate the example data from
 
 \subsection{Initialisation of a Scale4C object}
 
-As soon as the data is available in R, we can create the raw {\it Scale4C} object.
+As soon as the data is available in R, we can create the raw \Rclass{Scale4C} object.
 
 <<label=initialiseObject, eval=TRUE>>=
 liverData = Scale4C(rawData = liverReads, viewpoint = 21160072, viewpointChromosome = "chr10")
@@ -126,9 +126,9 @@ head(pointsOfInterest(liverData))
 
 \subsection{Smoothing, inflection points, fingerprint map, and singularities}
 
-\Rpackage{Scale4C} relies on two central functions to perform the scale-space transformation, {\it calculateFingerprintMap} and {\it findSingularities}. To create a fingerprint map, we smooth the 4C-seq signal with increasing values of $\sigma$ for the Gauss kernel. 
+\Rpackage{Scale4C} relies on two central functions to perform the scale-space transformation, \Rmethod{calculateFingerprintMap} and \Rmethod{findSingularities}. To create a fingerprint map, we smooth the 4C-seq signal with increasing values of $\sigma$ for the Gauss kernel. 
 
-{\it plotInflectionPoints} can plot the smoothed data for a given $\sigma$, effectively showing a non-condensed 'slice' of the scale space and fingerprint map.  
+\Rmethod{plotInflectionPoints} can plot the smoothed data for a given $\sigma$, effectively showing a non-condensed 'slice' of the scale space and fingerprint map.  
 
 <<label=plotInflectionPoints01, fig=TRUE, include=TRUE, eval=TRUE, PDF=TRUE>>=
 plotInflectionPoints(liverData, 2, fileName = "", plotIP = FALSE)
@@ -144,65 +144,65 @@ We can see that for a $\sigma$ of $50$, the $-36$ element of Stadhouders et al. 
 
 Note: Since we haven't actually calculated the fingerprint map and inflection points up to now, {\it plotIP} should be set to FALSE.
 
-In a similar manner, {\it calculateScaleSpace} and {\it calculateFingerprintMap} compute the whole fingerprint map, up to a provided maximum square $\sigma$. {\it findSingularities} then identifies singular points of the inflection point contours in scale-space \cite{Witkin01}.
+In a similar manner, \Rmethod{calculateScaleSpace} and \Rmethod{calculateFingerprintMap} compute the whole fingerprint map, up to a provided maximum square $\sigma$. The fingerprint data is stored in the second assay of the {\it scaleSpace} slot of a \Rclass{Scale4C} object. \Rmethod{findSingularities} then identifies singular points of the inflection point contours in scale-space \cite{Witkin01}.
 
 <<label=calculateScaleSpace, eval=TRUE>>=
 scaleSpace(liverData) = calculateScaleSpace(liverData, maxSQSigma = 10)
-head(scaleSpace(liverData)[,1:5])
+head(t(assay(scaleSpace(liverData), 1))[,1:5])
 @
 
 To speed up the examples, we use a small maximum $\sigma$ for the given example.
 
 <<label=calculateFingerprintMap, eval=TRUE>>=
-fingerprint(liverData) = calculateFingerprintMap(liverData, maxSQSigma = 10)
+liverData = calculateFingerprintMap(liverData, maxSQSigma = 10)
 singularities(liverData) = findSingularities(liverData, 1, guessViewpoint = FALSE)
 @
 
-The resulting fingerprint map and singularity trace for a maxSQSigma of $2500$ are presented in figure \ref{fig:01}.
+The resulting fingerprint map and singularity trace for a maxSQSigma of $2000$ are presented in figure \ref{fig:01}.
 
 \begin{figure}[h]
-    \includegraphics[width=12cm,height=12cm]{images/Stadhouders_FL_Prom_traceback_2500_liverData.pdf}
+    \includegraphics[width=12cm,height=12cm]{images/Stadhouders_FL_Prom_traceback_2000_liverData.pdf}
     \caption{Fingerprint map with traced singularities for Stadhouders et al.'s example liver data \cite{Stadhouders01}. The viewpoint wasn't tracked, since the corresponding contours do not meet for the chosen $\sigma$, and the largest remaining singularity's contours were not traced correctly.}
     \label{fig:01}
 \end{figure}
 
-There are two issues with the fingerprint map: First, the viewpoint is not identified, because the $\sigma$ used is far too small for the inflection point contours to meet. Second, the largest identified singularity has wrong traces for both the left and right side: the dark gray tracking line doesn't match the corresponding inflection point curve or contour. Both problems should be corrected before tesselation. We can easily manipulate the list of singularities with R's usual data frame options, and load the corrected list back into our {\it Scale4C} object.
+There are two issues with the fingerprint map: First, the viewpoint is not identified, because the $\sigma$ used is far too small for the inflection point contours to meet. Second, the largest identified singularity has wrong traces for both the left and right side: the dark gray tracking line doesn't match the corresponding inflection point curve or contour. Both problems should be corrected before tesselation. We can easily manipulate the list of singularities with R's usual data frame options, and load the corrected list back into our \Rclass{Scale4C} object.
 
 <<label=adaptSingularities, eval=TRUE>>=
 data(liverData)
 tail(singularities(liverData))
 # add viewpoint singularity
 singularities(liverData) = c(singularities(liverData), GRanges("chr10", IRanges(39, 42),
-    "*", "sqsigma" = 2500, "left" = 40, "right" = 41, "type" = "peak"))
+    "*", "sqsigma" = 2000, "left" = 40, "right" = 41, "type" = "peak"))
 # correct singularity's coordinates
 tempSingularities = singularities(liverData)
-tempSingularities$left[33] = 235
-tempSingularities$right[33] = 250
-tempSingularities$type[33] = "peak"
+tempSingularities$left[30] = 235
+tempSingularities$right[30] = 250
+tempSingularities$type[30] = "peak"
 singularities(liverData) = tempSingularities
 tail(singularities(liverData))
 @
 
 Note: There are a number of possible problems with the identification and the tracking of singularities. 
 
-First, singularities can simply be missed altogether. This typically happens for few singularities with a high $\sigma$, i.e. huge remaining basic features of the data, when the upper part of the contours are so stretched that holes appear in the fingerprint map. While it is possible to adapt {\it calculateFingerprintMap} for a chance to catch these features (cp. manual page), it is often faster to just add a singularity and its corresponding left and right fragment at base $\sigma$ level manually. If the 4C-seq data shows the typical peak at the viewpoint, this allows to speed up the calculations for the fingerprint map a bit: By ignoring the viewpoint singularity at extremely high $\sigma$ and using its contours to visually identify its left and right extent, we can stop at a reasonable $\sigma$ and get a feasible tesselation. The example code above adds the viewpoint peak to the example data's list of singularities.
+First, singularities can simply be missed altogether. This typically happens for few singularities with a high $\sigma$, i.e. huge remaining basic features of the data, when the upper part of the contours are so stretched that holes appear in the fingerprint map. While it is possible to adapt \Rmethod{calculateFingerprintMap} for a chance to catch these features (cp. manual page), it is often faster to just add a singularity and its corresponding left and right fragment at base $\sigma$ level manually. If the 4C-seq data shows the typical peak at the viewpoint, this allows to speed up the calculations for the fingerprint map a bit: By ignoring the viewpoint singularity at extremely high $\sigma$ and using its contours to visually identify its left and right extent, we can stop at a reasonable $\sigma$ and get a feasible tesselation. The example code above adds the viewpoint peak to the example data's list of singularities.
 
-Second, singularities can also be marked erroneously multiple times. This also tends to happen for very large and frazzled contours; either adapting {\it calculateFingerprintMap}'s {\it epsilon} or simply deleting the false singularities manually solves this problem. Identifying the correct singularity visually should be easy enough with {\it plotTraceback}'s output plots: A valid singularity is located on the top of a inflection point curve, and nowhere else.
+Second, singularities can also be marked erroneously multiple times. This also tends to happen for very large and frazzled contours; either adapting \Rmethod{calculateFingerprintMap}'s {\it epsilon} or simply deleting the false singularities manually solves this problem. Identifying the correct singularity visually should be easy enough with \Rmethod{plotTraceback}'s output plots: A valid singularity is located on the top of a inflection point curve, and nowhere else.
 
 Third, $\sigma = 1$ tends to be difficult to trace due to the number of inflection point curves in close proximity and identified singularities (part of which are usually wrong).
 
 The results of the example's fingerprint map and singularity search after correction are shown in figure \ref{fig:02}.
 
 \begin{figure}[h]
-    \includegraphics[width=12cm,height=12cm]{images/Stadhouders_FL_Prom_traceback_2500_liverDataVP.pdf}
+    \includegraphics[width=12cm,height=12cm]{images/Stadhouders_FL_Prom_traceback_2000_liverDataVP.pdf}
     \caption{Fingerprint map after manual correction: The viewpoint is added, and the remaining singularities for Stadhouders et al.'s example liver data \cite{Stadhouders01} are traced correctly.}
     \label{fig:02}
 \end{figure}
 
-If the data looks 'normal', i.e. the 4C-seq signal creates mainly large 'peaks' in the fingerprint map, and no large 'valleys' are present, it is also possible to stop at a lower $\sigma$ and let the function combine the remaining single contours by setting {\it guessViewpoint = TRUE}. In this case, it is assumed that all remaining curves in the fingerprint map belong to peaks, and singularities are formed accordingly. Results for such a combination are shown in figure \ref{fig:03}.
+If the data looks 'normal', i.e. the 4C-seq signal creates mainly large 'peaks' in the fingerprint map, and no large 'valleys' are present, it is also possible to stop at a lower $\sigma$ and let the function combine the remaining single contours by setting {\it guessViewpoint = TRUE}. In this case, it is assumed that all remaining curves in the fingerprint map belong to peaks, and singularities are formed accordingly. Results for such a combination ($\sigma = 500$) are shown in figure \ref{fig:03}.
 
 \begin{figure}[h]
-    \includegraphics[width=12cm,height=12cm]{images/Stadhouders_FL_Prom_traceback_1000_liverData.pdf}
+    \includegraphics[width=12cm,height=12cm]{images/Stadhouders_FL_Prom_traceback_500_liverData.pdf}
     \caption{Fingerprint map for a smaller maximum $\sigma$ of $500$ with automatically matched contours.}
     \label{fig:03}
 \end{figure}
@@ -210,11 +210,12 @@ If the data looks 'normal', i.e. the 4C-seq signal creates mainly large 'peaks' 
 
 \subsection{Tesselation}
 
-If the fingerprint map and the singularity traceback appear to be satisfactory, the actual tesselation can be plotted. The example plot in figure \ref{fig:04} uses different colours to depict peaks (brown) and valleys (blue). Each singularity causes one parent feature to split into three child features (e.g. a single peak is split into peak-valley-peak); {\it plotTesselation} per default marks the central feature of a trio in a darker shade, and adjacent in a lighter one. Different colours for 'central' and 'adjacent' features allow for optical quality control of the tesselation, cp. manual page for {\it plotTesselation} and \cite{Witkin01, Lee01}.
+If the fingerprint map and the singularity traceback appear to be satisfactory, the actual tesselation can be plotted. The example plot in figure \ref{fig:04} uses different colours to depict peaks (brown) and valleys (blue). Each singularity causes one parent feature to split into three child features (e.g. a single peak is split into peak-valley-peak); \Rmethod{plotTesselation} per default marks the central feature of a trio in a darker shade, and adjacent in a lighter one. Different colours for 'central' and 'adjacent' features allow for optical quality control of the tesselation, cp. manual page for \Rmethod{plotTesselation} and \cite{Witkin01, Lee01}.
 
 <<label=plotTesselation, fig=TRUE, include=FALSE, eval=TRUE, PDF=TRUE>>=
 # use pre-calculated example data with VP and correction
-plotTesselation(liverData, fileName = "")
+data(liverDataVP)
+plotTesselation(liverDataVP, fileName = "")
 @
 
 \begin{figure}[h]
@@ -228,7 +229,7 @@ The tesselation allows to assess the qualitative structure of the provided 4C-se
 We can also output the underlying structure as a simple table, with or without $\sigma$ $log2$ transformation. If {\it outputPeaks} is set to FALSE, the output table shows a list of all central features, as specified by singularities in the fingerprint map, and their corresponding adjacent left and adjacent right features with their range of persistence in $\sigma$, and left and right extent in fragments / genomic position. Otherwise, valleys are omitted from the output, and the data is exported as \Rpackage{GenomicRanges} object. The features' signals, i.e. the mean read counts for the identified intervals, are also provided.
 
 <<label=outputScaleSpaceTree, eval=TRUE>>=
-head(outputScaleSpaceTree(liverData, useLog = FALSE))
+head(outputScaleSpaceTree(liverDataVP, useLog = FALSE))
 @
 
 

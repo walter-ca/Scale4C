@@ -29,15 +29,15 @@ features. \code{calculateScaleSpace} smoothes the original signal up to
 a provided smoothing factor square sigma (Gauss kernel).
 }
 
-\value{A matrix containing the scale space representation for a Scale4C 
-object}
+\value{A \code{SummarizedExperiment} that contains in its first assay the scale 
+space representation for a \code{Scale4C} object}
 
 \examples{
     # read prepared example data
     data(liverData)
     # use small maxSQSigma for a fast example
     scaleSpace(liverData)<-calculateScaleSpace(liverData, maxSQSigma = 10)
-    head(scaleSpace(liverData)[,1:20])
+    head(t(assay(scaleSpace(liverData), 1))[,1:20])
 }
 
 \author{Carolin Walter}

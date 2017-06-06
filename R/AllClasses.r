@@ -4,8 +4,7 @@ setClass("Scale4C",
         viewpointChromosome="character",
         pointsOfInterest="GRanges",
         rawData="GRanges",
-        scaleSpace="matrix",
-        fingerprint="matrix",
+        scaleSpace="SummarizedExperiment",
         singularities="GRanges"
     ),
 
@@ -14,8 +13,7 @@ setClass("Scale4C",
         viewpointChromosome=character(),
         pointsOfInterest=GRanges(),
         rawData=GRanges(),
-        scaleSpace=matrix(),
-        fingerprint=matrix(),
+        scaleSpace=SummarizedExperiment(),
         singularities=GRanges()
     ),
 
